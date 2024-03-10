@@ -2,7 +2,7 @@
 #define SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
 
 #include "byte_stream.hh"
-
+#include <deque>
 #include <cstdint>
 #include <string>
 
@@ -21,7 +21,7 @@ class StreamReassembler {
 
     void verifyContiguous();
     size_t actualSize(const std::string &inputData, const size_t position);
-    
+
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
     //! \note This capacity limits both the bytes that have been reassembled,
