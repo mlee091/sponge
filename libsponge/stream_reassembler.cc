@@ -6,8 +6,8 @@ StreamReassembler::StreamReassembler(const size_t capacity) :
     unassembledBase(0),
     unassembledSize(0),
     endOfFile(0),
-    dataBuffer(capacity, '\0'),
-    bufferBitmap(capacity, false),
+    dataBuffer(_capacity, '\0'),
+    bufferBitmap(_capacity, false),
     _output(capacity), 
     _capacity(capacity) {}
 
