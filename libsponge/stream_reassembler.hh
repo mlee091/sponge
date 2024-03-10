@@ -21,9 +21,9 @@ class StreamReassembler {
     ByteStream _output;
     size_t _capacity;
     std::vector<std::pair<char, bool>> _stream;
-    uint64_t _cur_index;
-    uint64_t _eof_index;
-    size_t _unassembled_bytes_cnt;
+    uint64_t currentIndex;
+    uint64_t eofIndex;
+    size_t numberOfUnassembledBytes;
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.

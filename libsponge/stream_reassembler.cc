@@ -1,55 +1,69 @@
 #include "stream_reassembler.hh"
+#include <stdexcept>
+#include <algorithm>
 
 using namespace std;
 
-StreamReassembler::StreamReassembler(const size_t capacity) : 
-    unassembledBase(0),
-    unassembledSize(0),
-    endOfFile(0),
-    dataBuffer(_capacity, '\0'),
-    bufferBitmap(_capacity, false),
-    _output(capacity), 
-    _capacity(capacity) {}
+StreamReassembler::StreamReassembler(const size_t capacity) 
+    : _output(capacity), 
+      _capacity(capacity), 
+      _stream(capacity), 
+      currentIndex(0),
+      eofIndex(std::numeric_limits<uint64_t>::max()), 
+      numberOfUnassembledBytes(0) {}
 
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
 //! contiguous substrings and writes them into the output stream in order.
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
-    // if the provided data is empty or the index is greater than the capacity, ignore it.
-    if (data.empty() || index >= _capacity) {
-        return;
-    }
-
-    size_t dataStart = index > unassembledBase ? index - unassembledBase : 0; // offset in data
-    size_t dataEnd = dataStart + min(data.size(), _capacity - index); // end index in data
-
-    // update the buffer with the data.
-    for (size_t i = dataStart; i < dataEnd; ++i) {
-        size_t bufferIndex = index + i;
-        
-        // if the byte is not already assembled, update the buffer and set the corresponding bitmap.
-        if (!bufferBitmap[bufferIndex]) {
-            dataBuffer[bufferIndex] = data[i];
-            bufferBitmap[bufferIndex] = true;
-            unassembledSize++;
+    // figuring out where it should start and end in the stream
+    size_t startIndex = std::max(index, currentIndex);
+    size_t endIndex = std::min(index + data.size(), std::min(currentIndex + _capacity - _output.buffer_size(), eofIndex));
+    
+    // if this is the last, set up where the stream should end
+    // if the end doesn't match what we expect, throw an error
+    if (eof) {
+        if (eofIndex == std::numeric_limits<uint64_t>::max()) {
+            eofIndex = index + data.size();
+        } else if (eofIndex != index + data.size()) {
+            throw std::runtime_error("StreamReassembler::push_substring: Inconsistent EOF indexes!");
         }
     }
 
-    // update the endOfFile marker if the provided substring contains an EOF marker.
-    if (eof) {
-        endOfFile = index + dataEnd - dataStart;
+    // iterating through the substring
+    for (size_t i = startIndex, j = startIndex - index; i < endIndex; ++i, ++j) {
+        auto &currentPair = _stream[i % _capacity];
+        if (currentPair.second == true) {
+            // check for inconsistent substrings, and throw an error
+            if (currentPair.first != data[j]) {
+                throw std::runtime_error("StreamReassembler::push_substring: Inconsistent substrings!");
+            }
+        } else {
+            currentPair = std::make_pair(data[j], true);
+            ++numberOfUnassembledBytes;
+        }
     }
 
-    // check if there are contiguous bytes at the beginning of the buffer, write them to output.
-    while (bufferBitmap[unassembledBase]) {
-        char currentChar = dataBuffer[unassembledBase];
-        _output.write(&currentChar); 
-        bufferBitmap[unassembledBase] = false;
-        unassembledBase++;
-        unassembledSize--;
+    // assemble contiguous substrings
+    string str;
+    while (currentIndex < eofIndex && _stream[currentIndex % _capacity].second == true) {
+        str.push_back(_stream[currentIndex % _capacity].first);
+        _stream[currentIndex % _capacity] = { 0, false };
+        --numberOfUnassembledBytes;
+        ++currentIndex;
+    }
+
+    // write them into output stream
+    _output.write(str);
+    if (currentIndex == eofIndex) {
+        _output.end_input();
     }
 }
 
-size_t StreamReassembler::unassembled_bytes() const { return unassembledSize; }
+size_t StreamReassembler::unassembled_bytes() const { 
+    return numberOfUnassembledBytes; 
+}
 
-bool StreamReassembler::empty() const { return unassembledSize == 0; }
+bool StreamReassembler::empty() const { 
+    return unassembled_bytes() == 0; 
+}
