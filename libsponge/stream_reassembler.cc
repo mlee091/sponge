@@ -40,7 +40,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         endOfFile = index + dataEnd - dataStart;
     }
 
-    // Cceck if there are contiguous bytes at the beginning of the buffer, write them to output.
+    // check if there are contiguous bytes at the beginning of the buffer, write them to output.
     while (bufferBitmap[unassembledBase]) {
         char currentChar = dataBuffer[unassembledBase];
         _output.write(&currentChar); 
@@ -50,6 +50,6 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }
 }
 
-size_t StreamReassembler::unassembled_bytes() const { return {}; }
+size_t StreamReassembler::unassembled_bytes() const { return unassembledSize; }
 
-bool StreamReassembler::empty() const { return {}; }
+bool StreamReassembler::empty() const { return unassembledSize == 0; }
