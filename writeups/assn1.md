@@ -1,13 +1,13 @@
 Assignment 1 Writeup
 =============
 
-My name: [your name here]
+My name: Megan Lee
 
-My POVIS ID: [your povis id here]
+My POVIS ID: meganlee
 
-My student ID (numeric): [your student id here]
+My student ID (numeric): 49004702
 
-This assignment took me about [n] hours to do (including the time on studying, designing, and writing the code).
+This assignment took me about 3 hours to do (including the time on studying, designing, and writing the code).
 
 Program Structure and Design of the StreamReassembler:
 []
@@ -18,7 +18,7 @@ Implementation Challenges:
 Remaining Bugs:
 []
 
-- Optional: I had unexpected difficulty with: [describe]
+- Optional: I had unexpected difficulty with: I finally managed to set up remote VSC, as I was unable to do so in the previous assignment and hence did not manage to submit a .git file.
 
 - Optional: I think you could make this assignment better by: [describe]
 
