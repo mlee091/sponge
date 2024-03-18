@@ -7,7 +7,7 @@ My POVIS ID: meganlee
 
 My student ID (numeric): 49004702
 
-This assignment took me about [n] hours to do (including the time on studying, designing, and writing the code).
+This assignment took me about 4 hours to do (including the time on studying, designing, and writing the code).
 
 If you used any part of best-submission codes, specify all the best-submission numbers that you used (e.g., 1, 2): []
 
@@ -35,7 +35,7 @@ Calculates the next acknowledgment number to be sent. If a SYN has not been rece
 Returns the remaining capacity of the stream output, which is used as the window size for flow control in TCP.
 
 Implementation Challenges:
-I was sure that I was utilising the correct usage "std::optional<WrappingInt32>" in tcp_receiver.hh and tcp_receiver.cc, but the error did not go away. 
+I was sure that I was utilising the correct usage "std::optional<WrappingInt32>" in tcp_receiver.hh and tcp_receiver.cc, but the error did not go away. After much searching on the Internet, I decided to continue without resolving the error.
 
 Remaining Bugs:
 There are still some errors for undefined variables.
