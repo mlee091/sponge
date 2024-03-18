@@ -3,16 +3,14 @@
 
 #include "byte_stream.hh"
 
-#include <vector>
 #include <algorithm>
-#include <stdexcept>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string>
 #include <utility>
-
-
+#include <vector>
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.

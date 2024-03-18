@@ -1,16 +1,17 @@
 #include "stream_reassembler.hh"
-#include <stdexcept>
+
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
-StreamReassembler::StreamReassembler(const size_t capacity) 
-    : _output(capacity), 
-      _capacity(capacity), 
-      _stream(capacity), 
-      currentIndex(0),
-      eofIndex(std::numeric_limits<uint64_t>::max()), 
-      numberOfUnassembledBytes(0) {}
+StreamReassembler::StreamReassembler(const size_t capacity)
+    : _output(capacity)
+    , _capacity(capacity)
+    , _stream(capacity)
+    , currentIndex(0)
+    , eofIndex(std::numeric_limits<uint64_t>::max())
+    , numberOfUnassembledBytes(0) {}
 
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
@@ -18,8 +19,9 @@ StreamReassembler::StreamReassembler(const size_t capacity)
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
     // figuring out where it should start and end in the stream
     size_t startIndex = std::max(index, currentIndex);
-    size_t endIndex = std::min(index + data.size(), std::min(currentIndex + _capacity - _output.buffer_size(), eofIndex));
-    
+    size_t endIndex =
+        std::min(index + data.size(), std::min(currentIndex + _capacity - _output.buffer_size(), eofIndex));
+
     // if this is the last, set up where the stream should end
     // if the end doesn't match what we expect, throw an error
     if (eof) {
@@ -48,7 +50,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     string str;
     while (currentIndex < eofIndex && _stream[currentIndex % _capacity].second == true) {
         str.push_back(_stream[currentIndex % _capacity].first);
-        _stream[currentIndex % _capacity] = { 0, false };
+        _stream[currentIndex % _capacity] = {0, false};
         --numberOfUnassembledBytes;
         ++currentIndex;
     }
@@ -60,10 +62,6 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }
 }
 
-size_t StreamReassembler::unassembled_bytes() const { 
-    return numberOfUnassembledBytes; 
-}
+size_t StreamReassembler::unassembled_bytes() const { return numberOfUnassembledBytes; }
 
-bool StreamReassembler::empty() const { 
-    return unassembled_bytes() == 0; 
-}
+bool StreamReassembler::empty() const { return unassembled_bytes() == 0; }
