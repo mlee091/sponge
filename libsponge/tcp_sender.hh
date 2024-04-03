@@ -15,6 +15,40 @@
 //! segments, keeps track of which segments are still in-flight,
 //! maintains the Retransmission Timer, and retransmits in-flight
 //! segments if the retransmission timer expires.
+class Timer {
+  private:
+    bool isRunning{false};
+
+    unsigned int retransmissionTimeout;
+
+    unsigned int baseRetransmissionTimeout;
+
+    const unsigned int initialRetransmissionTimeout;
+
+    unsigned int numConsecutiveRetransmissions{0};
+
+    std::queue<std::pair<TCPSegment, uint64_t>> outstandingSegments{};
+
+  public:
+    Timer(const uint16_t retx_timeout)
+        : retransmissionTimeout(retx_timeout)
+        , baseRetransmissionTimeout(retx_timeout)
+        , initialRetransmissionTimeout(retx_timeout) {}
+
+    bool running() { return isRunning; }
+
+    void on() { isRunning = true; }
+    void off() { isRunning = false; }
+
+    unsigned int consecutive_retransmissions() const { return numConsecutiveRetransmissions; }
+    void push_outstanding(const TCPSegment &seg, const uint64_t end_seqno) {
+        outstandingSegments.emplace(seg, end_seqno);
+    }
+
+    void tick_handle(const size_t ticks, const uint16_t window_size, std::queue<TCPSegment> &segments_out);
+
+    uint64_t ack_handle(const uint64_t ackno);
+};
 class TCPSender {
   private:
     //! our initial sequence number, the number for our SYN.
@@ -31,6 +65,21 @@ class TCPSender {
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+
+    //! number of bytes that have been sent but not yet acknowledged
+    uint64_t _bytes_in_flight{0};
+
+    //! size of the window for flow control
+    uint16_t _window_size{1};
+
+    //! sequence number of the last byte that has been acknowledged
+    uint64_t _ackno{0};
+
+    //! flag to indicate if the FIN has been sent
+    bool _fin_sended{false};
+
+    //! timer for handling retransmissions
+    Timer _timer;
 
   public:
     //! Initialize a TCPSender
