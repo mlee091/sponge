@@ -7,7 +7,7 @@ My POVIS ID: meganlee
 
 My student ID (numeric): 49004702
 
-This assignment took me about [n] hours to do (including the time on studying, designing, and writing the code).
+This assignment took me about 10 hours to do (including the time on studying, designing, and writing the code).
 
 If you used any part of best-submission codes, specify all the best-submission numbers that you used (e.g., 1, 2): []
 
