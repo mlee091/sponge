@@ -28,11 +28,10 @@ class TCPConnection {
     void attempt_clean_close();
     void dispatch_reset();
     void refresh_queue();
-    void handle_reset(const TCPSegment&);
+    void handle_reset(const TCPSegment &);
     void handle_ack(const TCPSegment &seg);
     void handle_streams();
     void handle_non_empty_segment(const TCPSegment &seg);
-
 
   public:
     //! \name "Input" interface for the writer

@@ -7,7 +7,7 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
 
-void TCPConnection::handle_reset(const TCPSegment&) {
+void TCPConnection::handle_reset(const TCPSegment &) {
     _receiver.stream_out().set_error();
     _sender.stream_in().set_error();
     _is_active = false;
@@ -48,30 +48,30 @@ size_t TCPConnection::unassembled_bytes() const { return _receiver.unassembled_b
 size_t TCPConnection::time_since_last_segment_received() const { return _idle_duration; }
 
 void TCPConnection::segment_received(const TCPSegment &seg) {
-        _idle_duration = 0;
-        bool is_reset = seg.header().rst;
+    _idle_duration = 0;
+    bool is_reset = seg.header().rst;
 
-        if (is_reset) {
-            handle_reset(seg);
-            return;
-        }
+    if (is_reset) {
+        handle_reset(seg);
+        return;
+    }
 
-        _receiver.segment_received(seg);
-        bool is_ack = seg.header().ack;
+    _receiver.segment_received(seg);
+    bool is_ack = seg.header().ack;
 
-        if (is_ack) {
-            handle_ack(seg);
-        }
+    if (is_ack) {
+        handle_ack(seg);
+    }
 
-        handle_streams();
-        attempt_clean_close();
+    handle_streams();
+    attempt_clean_close();
 
-        if (seg.length_in_sequence_space() != 0) {
-            handle_non_empty_segment(seg);
-        } else if (seg.header().seqno == _receiver.ackno().value() - 1) {
-            _sender.send_empty_segment();
-            refresh_queue();
-        }
+    if (seg.length_in_sequence_space() != 0) {
+        handle_non_empty_segment(seg);
+    } else if (seg.header().seqno == _receiver.ackno().value() - 1) {
+        _sender.send_empty_segment();
+        refresh_queue();
+    }
 }
 
 bool TCPConnection::active() const { return _is_active; }
@@ -119,7 +119,7 @@ TCPConnection::~TCPConnection() {
     }
 }
 
-void TCPConnection::attempt_clean_close(){
+void TCPConnection::attempt_clean_close() {
     bool isReceiverStreamClosed = _receiver.stream_out().eof();
     bool isSenderStreamClosed = _sender.stream_in().eof();
     bool isSenderIdle = _sender.bytes_in_flight() == 0;
@@ -129,8 +129,8 @@ void TCPConnection::attempt_clean_close(){
     }
 }
 
-void TCPConnection::dispatch_reset(){
-    _segments_out = {}; 
+void TCPConnection::dispatch_reset() {
+    _segments_out = {};
     TCPSegment seg = _sender.segments_out().back();
     seg.header().rst = true;
     _segments_out.push(seg);
@@ -139,12 +139,12 @@ void TCPConnection::dispatch_reset(){
     _is_active = false;
 }
 
-void TCPConnection::refresh_queue(){
+void TCPConnection::refresh_queue() {
     bool receiverHasAck = _receiver.ackno().has_value();
     while (!_sender.segments_out().empty()) {
-        auto& seg = _sender.segments_out().front();
+        auto &seg = _sender.segments_out().front();
         if (receiverHasAck) {
-            auto& header = seg.header();
+            auto &header = seg.header();
             header.ack = true;
             header.ackno = _receiver.ackno().value();
             header.win = _receiver.window_size();
