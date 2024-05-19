@@ -28,15 +28,38 @@ void Router::add_route(const uint32_t route_prefix,
                        const size_t interface_num) {
     cerr << "DEBUG: adding route " << Address::from_ipv4_numeric(route_prefix).ip() << "/" << int(prefix_length)
          << " => " << (next_hop.has_value() ? next_hop->ip() : "(direct)") << " on interface " << interface_num << "\n";
-
-    DUMMY_CODE(route_prefix, prefix_length, next_hop, interface_num);
-    // Your code here.
+    _route_table.emplace_back(route_prefix, prefix_length, next_hop, interface_num);
 }
 
 //! \param[in] dgram The datagram to be routed
 void Router::route_one_datagram(InternetDatagram &dgram) {
-    DUMMY_CODE(dgram);
-    // Your code here.
+    if (dgram.header().ttl <= 1)
+        return;
+
+    uint32_t best_route_id = _route_table.size();
+    int longest_prefix = -1;
+    for (const RouteRecord &current_route : _route_table) {
+        int mask =
+            current_route._prefix_length == 0
+                ? 0
+                : current_route._prefix_length == 32 ? 0xFFFFFFFF : (0xFFFFFFFF) << (32 - current_route._prefix_length);
+        if ((current_route._route_prefix & mask) == (dgram.header().dst & mask) &&
+            current_route._prefix_length > longest_prefix) {
+            longest_prefix = current_route._prefix_length;
+            best_route_id = &current_route - &_route_table[0];
+        }
+    }
+
+    if (best_route_id == _route_table.size())
+        return;
+
+    const RouteRecord &chosen_route = _route_table[best_route_id];
+
+    dgram.header().ttl--;
+    auto next_hop = chosen_route._next_hop;
+    auto interface_num = chosen_route._interface_num;
+    _interfaces[interface_num].send_datagram(
+        dgram, next_hop.has_value() ? next_hop.value() : Address::from_ipv4_numeric(dgram.header().dst));
 }
 
 void Router::route() {
