@@ -20,18 +20,16 @@ If you used any part of best-submission codes, specify all the best-submission n
 - **Caution**: If you have no idea about above best-submission item, please refer the Assignment PDF for detailed description.
 
 Solo portion:
-My implementation successfully started and ended a conversation with another copy of itself, and 
-successfully transfered a one-megabyte file, with contents identical upon receipt. No additional changes 
-were made to pass these steps.
+My implementation successfully started and ended a conversation with another copy of itself, and successfully transfered a one-megabyte file, with contents identical upon receipt. No additional changes were made to pass these steps.
 
 Group portion:
-[]
+Our team name is Metcalfe and Kim Jeongwoo (POVIS ID: forluca) is my partner. Our implementations successfully started and ended a conversation with each other, and successfully transfered a one-megabyte file, with contents identical upon receipt. No additional changes were made to pass these steps.
 
 Creative portion (optional):
-[]
+I did not attempt the creative portion.
 
 Other remarks:
-[]
+No other remarks.
 
 - Optional: I had unexpected difficulty with: [describe]
 
